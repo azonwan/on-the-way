@@ -1,0 +1,1 @@
+<div class="tree"><a href="?m=({$module_name})">管理页面TOP</a>&nbsp;＞&nbsp;统计情报：({if $parent_page_name})<a href="({$smarty.capture.parent_page_url|smarty:nodefaults})">({$parent_page_name})</a>&nbsp;＞&nbsp;({/if})({$page_name})</div>

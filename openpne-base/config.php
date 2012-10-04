@@ -1,0 +1,568 @@
+<?php
+ini_set("memory_limit","24M");
+ini_set("date.timezone", 'Asia/Shanghai');
+//// 服务器管理设定 ////
+
+//--- 必须设定
+
+// Web上的绝对地址(URL)(最后不要忘记加上反斜杠)
+define('OPENPNE_URL', 'http://openpne.com/');
+
+// DB服务器设定
+$GLOBALS['_OPENPNE_DSN_LIST']['main'] = array(
+'dsn'  => array(
+    'phptype'  => 'mysql',
+    'username' => 'root',
+    'password' => '',
+    'hostspec' => 'localhost',
+    'database' => 'openpne',
+    'new_link' => false,
+    ),
+);
+
+// DB暗号化键(56位以内的ASCII文字列)
+define('ENCRYPT_KEY', 'asdfgh');
+
+// 邮件服务器域名
+// 使用手机邮件投稿的地址等域名
+define('MAIL_SERVER_DOMAIN', 'mail.example.com');
+
+
+//--- 可选项设定
+
+// 调试模式
+// 0: off ... 不显示错误，但是记录出错信息
+// 1: on  ... 显示错误，但是不记录出错信息
+// 2: on  ... 1 + Smarty调试控制台 
+define('OPENPNE_DEBUGGING', 0);
+
+// 无效模块
+//$GLOBALS['_OPENPNE_DISABLE_MODULES'] = array('admin', 'setup');
+
+// 维护模式
+// 维护状态下，每日新闻配信和邮件投稿机制也无效
+// true: 向用户显示维护页面
+define('OPENPNE_UNDER_MAINTENANCE', false);
+
+// 网站处于维护模式显示的文字
+// 支持html代码
+// 无输入时，显示标准的text文本
+define('OPENPNE_MAINTENANCE_TEXT', '');
+// 网站维护中也能显示的模块名
+$GLOBALS['_OPENPNE_MAINTENANCE_MODULES'] = array('admin');
+
+// Crypt_Blowfish library的旧版本使用设定
+// OpenPNE2.2以前的版本更新后不能登录的话，
+// 如果是暗号化相关话，设置为true
+define('OPENPNE_USE_OLD_CRYPT_BLOWFISH', false);
+
+// Function_cache使用设定
+// 有效时，最新信息显示可能会延迟
+define('OPENPNE_USE_FUNCTION_CACHE', false);
+
+// memcache使用设置
+// 要使用memcache,OPENPNE_USE_FUNCTION_CACHE设置为true
+define('OPENPNE_USE_FUNCTION_CACHE_MEMCACHE', false);
+
+// 在OPENPNE_USE_FUNCTION_CACHE_MEMCACHE为true时下面设置有效
+// memcache服务器设定
+$GLOBALS['_OPENPNE_MEMCACHE_LIST']['func_cache'] = array(
+'dsn' => array(
+    'hostspec' => '127.0.0.1',
+    ),
+);
+
+// MySQL Hint使用设定
+define('OPENPNE_USE_MYSQL_HINT', true);
+
+// SESSION 保存设定
+// 0:文件
+// 1:数据库
+// 2:memcache(需要PECL::memcache)
+define('SESSION_STORAGE', 0);
+
+// 确认画面用的临时文件是否保存在DB中
+define('OPENPNE_TMP_IMAGE_DB', false);
+
+// 是否在DB中保存确认画面用的暂时文件
+define('OPENPNE_TMP_FILE_DB', false);
+
+///
+// DB服务器设定
+///
+
+// 主数据读入用DB(可选项)
+//$GLOBALS['_OPENPNE_DSN_LIST']['main_reader'][] = array(
+//'priority' => 1,
+//'dsn' => array(
+//    'phptype'  => 'mysql',
+//    'username' => '',
+//    'password' => '',
+//    'hostspec' => 'localhost',
+//    'database' => '',
+//    'new_link' => false,
+//    ),
+//);
+//$GLOBALS['_OPENPNE_DSN_LIST']['main_reader'][] = array(
+//'priority' => 1,
+//'dsn' => array(
+//    'phptype'  => 'mysql',
+//    'username' => '',
+//    'password' => '',
+//    'hostspec' => 'localhost',
+//    'database' => '',
+//    'new_link' => false,
+//    ),
+//);
+
+// Session数据保存用DB(可选项)
+//$GLOBALS['_OPENPNE_DSN_LIST']['session'] = array(
+//'dsn' => array(
+//    'phptype'  => 'mysql',
+//    'username' => '',
+//    'password' => '',
+//    'hostspec' => 'localhost',
+//    'database' => '',
+//    'new_link' => false,
+//    ),
+//);
+
+// session数据保存Memcache服务器设定(选择)
+$GLOBALS['_OPENPNE_MEMCACHE_LIST']['session'] = array(
+'dsn' => array(
+    'hostspec' => '127.0.0.1',
+    ),
+);
+
+// 图像数据保存用DB(可选项)
+//$GLOBALS['_OPENPNE_DSN_LIST']['image'] = array(
+//'dsn' => array(
+//    'phptype'  => 'mysql',
+//    'username' => '',
+//    'password' => '',
+//    'hostspec' => 'localhost',
+//    'database' => '',
+//    ),
+//);
+
+///
+// SSL设定
+///
+
+// 是否只对特定的页面使用SSL
+define('OPENPNE_USE_PARTIAL_SSL', false);
+
+// 从请求参数中取得SSL使用状況
+define('OPENPNE_USE_SSL_PARAM', false);
+
+// SSL用URL (因为涉及到继承Cookie值，需要和OPENPNE_URL相同的域名和路径)
+define('OPENPNE_SSL_URL', 'https://sns.example.com/');
+
+// 必须使用SSL的模块一览
+$GLOBALS['_OPENPNE_SSL_REQUIRED_MODULES'] = array('admin');
+
+// 必须使用SSL的action一览
+$GLOBALS['_OPENPNE_SSL_REQUIRED'] = array(
+'pc' => array(
+    'page_o_regist_prof',  'page_o_regist_prof_confirm', 'do_o_regist_prof',
+    'page_o_regist_intro', 'page_o_ri', 'page_o_regist_end',
+    'page_h_config_prof', 'page_h_config_prof_confirm', 'do_h_config_prof',
+    'page_h_config_ktai', 'do_h_config_ktai_send',
+    'page_h_config', 'do_h_config_1', 'do_h_config_2', 'do_h_config_3',
+    'page_o_login', 'page_o_tologin', 'do_o_login',
+    'page_o_public_invite','do_o_public_invite',
+    'page_h_invite','page_h_invite_confirm','do_h_invite_insert_c_invite',
+    'page_o_password_query','do_o_password_query',
+),
+'ktai' => array(
+    'page_o_login', 'do_o_login', 'do_o_easy_login',
+    'page_o_login2', 'do_o_update_ktai_address',
+    'page_o_regist_pre', 'page_o_regist_input', 'do_o_insert_c_member',
+    'page_o_regist_end',
+    'page_o_password_query', 'do_o_password_query',
+    'page_h_config_prof', 'do_h_config_prof_update_c_member',
+    'page_h_config_easy_login', 'do_h_config_easy_login',
+    'page_h_config_mail', 'do_h_config_mail_insert_c_ktai_address_pre',
+    'page_h_pc_send', 'page_h_pc_send_confirm', 'do_h_pc_send_insert_c_pc_address_pre',
+    'page_h_config_password_query', 'do_h_config_password_query_update_password_query',
+    'page_h_config_password', 'do_h_config_password_update_password',
+    'page_h_config', 'page_h_invite', 'do_h_invite_insert_c_invite',
+));
+
+// 是否使用SSL的用户可选action一览
+$GLOBALS['_OPENPNE_SSL_SELECTABLE'] = array(
+'pc' => array(
+),
+'ktai' => array(
+));
+
+///
+// 路径设定
+///
+
+define('OPENPNE_LIB_DIR'    , OPENPNE_DIR . '/lib');
+define('OPENPNE_VAR_DIR'    , OPENPNE_DIR . '/var');
+define('OPENPNE_WEBAPP_DIR' , OPENPNE_DIR . '/webapp');
+define('OPENPNE_MODULES_DIR', OPENPNE_WEBAPP_DIR . '/modules');
+define('OPENPNE_RSS_CACHE_DIR', OPENPNE_VAR_DIR . '/rss_cache');
+define('OPENPNE_PUBLIC_HTML_DIR', OPENPNE_DIR . '/public_html');
+
+///
+// webapp_ext目录使用设定
+///
+
+define('USE_EXT_DIR', false);
+define('OPENPNE_WEBAPP_EXT_DIR' , OPENPNE_DIR . '/webapp_ext');
+define('OPENPNE_MODULES_EXT_DIR', OPENPNE_WEBAPP_EXT_DIR . '/modules');
+
+///
+// webapp_biz目录使用设定
+//
+// BIZ使用设定已经移动到管理页面
+// define('USE_EXT_DIR', false);
+define('OPENPNE_WEBAPP_BIZ_DIR' , OPENPNE_DIR . '/webapp_biz');
+define('OPENPNE_MODULES_BIZ_DIR', OPENPNE_WEBAPP_BIZ_DIR . '/modules');
+
+///
+// 调试、错误控制、log设定
+///
+
+error_reporting(E_ALL ^ E_NOTICE);
+
+switch(OPENPNE_DEBUGGING) {
+// 测试开发环境
+case 2:
+    $GLOBALS['SMARTY']['debugging'] = true;
+case 1:
+    ini_set('display_errors', true);
+    ini_set('log_errors', false);
+    break;
+// 正式运营环境
+case 0:
+default:
+    ini_set('display_errors', false);
+    ini_set('log_errors', true);
+    ini_set('error_log', OPENPNE_VAR_DIR . '/log/php_errors.log');
+    break;
+}
+
+// 是否取得访问log(c_access_log)
+define('LOG_C_ACCESS_LOG', true);
+
+// 访问网站时被调用的日志函数
+define('OPENPNE_LOG_FUNCTION', '');
+
+///
+// session・cookie设定
+///
+
+ini_set('session.gc_probability',1);
+ini_set('session.gc_divisor',10000);
+
+ini_set('session.gc_maxlifetime', 432000); // 5 days
+//session_save_path('/tmp');
+
+// PC版
+// session生成时的有效期限 (0为无限)
+$GLOBALS['OpenPNE']['common']['session_lifetime'] = 0;
+// session的有效期限(秒)
+$GLOBALS['OpenPNE']['common']['session_idletime'] = 432000; // 5 days
+
+// 手机版（目前只支持日文手机系统）
+// session生成的有效期限(秒) (0为无限)
+$GLOBALS['OpenPNE']['ktai']['session_lifetime'] = 0;
+// session的有效期限(秒)
+$GLOBALS['OpenPNE']['ktai']['session_idletime'] = 3600; // 1 hour
+
+// 管理画面版
+// session生成时的有効期限(秒) (0为无限)
+$GLOBALS['OpenPNE']['admin']['session_lifetime'] = 0;
+// session的有效期限(秒)
+$GLOBALS['OpenPNE']['admin']['session_idletime'] = 86400; // 1 day
+
+// session中是否保存OPENPNE_URL
+// 同一服务器上运营复数SNS时，为防止session混乱
+// 从false换成true时，或者是从2.4RC1以前的版本升级时
+// 那以前的session变得无效而被退出
+define('OPENPNE_SESSION_CHECK_URL', true);
+
+///
+// 图像
+///
+
+// 图像被指定到其他服务器时
+//define('OPENPNE_IMG_URL', 'http://img.example.com/');
+
+//// 图像服务器用设定 ////
+//define('OPENPNE_IS_IMG_SERVER', false);
+
+// 图像cache是否放置到public_html下(需要mod_rewrite)
+define('OPENPNE_IMG_CACHE_PUBLIC', false);
+
+// 图像cache目录(需要写权限)
+if (OPENPNE_IMG_CACHE_PUBLIC) {
+    define('OPENPNE_IMG_CACHE_DIR', OPENPNE_PUBLIC_HTML_DIR . '/img');
+} else {
+    define('OPENPNE_IMG_CACHE_DIR', OPENPNE_VAR_DIR . '/img_cache');
+}
+
+// 图像变换时许可的解析度列表 (宽x高)
+// (指定为空的列表为无限制)
+$GLOBALS['_OPENPNE_IMG_ALLOWED_SIZE'] = array('40x40', '76x76', '120x120', '180x180', '240x320', '600x600');
+
+// 图像cache文件名的prefix
+define('OPENPNE_IMG_CACHE_PREFIX', 'img_cache_');
+
+// JPEG图像变换后的的QUALITY值
+define('OPENPNE_IMG_JPEG_QUALITY', 75);
+
+// ImageMagick使用设定
+// 0: off ... 不使用ImageMagick
+// 1: on  ... 只有GIF才可以使用ImageMagick
+// 2: on  ... 对JEPG,PNG,GIF使用ImageMagick(GD库必须)
+define('USE_IMAGEMAGICK', 0);
+
+// ImageMagick 的convert路径
+define('IMGMAGICK_APP', '/usr/bin/convert');
+//define('IMGMAGICK_APP', '"C:\Program Files\ImageMagick-6.2.5-Q16\convert"');
+
+// ImageMagick的可选项(默认为-resize)
+//define('IMGMAGICK_OPT', '-thumbnail');
+
+// 上传图像的文件大小限制(KB)
+define('IMAGE_MAX_FILESIZE', 300);
+
+// 上传图像的大小限制(px)
+// 指定为0时，大小无限制
+define('IMAGE_MAX_WIDTH', 0);
+define('IMAGE_MAX_HEIGHT', 0);
+
+// 手机版「大」图片显示时的解像度限制
+// 请指定（$GLOBALS['_OPENPNE_IMG_ALLOWED_SIZE'] 许可的解像度）
+define('OPENPNE_IMG_KTAI_MAX_WIDTH', 240);
+define('OPENPNE_IMG_KTAI_MAX_HEIGHT', 320);
+
+///
+// 文件上传机能
+///
+
+// 是否使用文件上传机能
+define('OPENPNE_USE_FILEUPLOAD', true);
+
+// 上传文件的文件大小限制(KB)
+define('FILE_MAX_FILESIZE', 200);
+
+// 许可扩展名列表(逗号(,)分开)
+// 未指定默认全部许可
+//define('FILE_ALLOWED_EXTENTIONS', 'pdf,xls,ppt,zip');
+define('FILE_ALLOWED_EXTENTIONS', '');
+
+///
+// 外部RSS取得
+///
+
+// 每次取得的RSS件数
+define('RSS_CACHE_LIMIT', 100);
+
+///
+// 手机邮件投稿（目前只支持日文手机系统）
+///
+
+// 送信地址的prefix
+//define('MAIL_ADDRESS_PREFIX', 'sns_');
+
+// 送信地址是否hash
+define('MAIL_ADDRESS_HASHED', true);
+
+// 收信邮件文字编码(从Content-Type无法取得时使用)
+//define('MAIL_FROM_ENCODING', 'gb2312');
+define('MAIL_FROM_ENCODING', 'auto');
+
+// 是否取得邮件log(var/log/mail.log)
+define('MAIL_DEBUG_LOG', false);
+
+///
+// 邮件送信设定
+///
+
+// 是否把半角转化为全角后送信
+define('MAIL_HAN2ZEN', true);
+
+// 传递给MTA的head改行编码(LF->CRLF的自动变换等对策)
+//define('MAIL_HEADER_SEP', 'CRLF');
+define('MAIL_HEADER_SEP', 'LF');
+
+// 是否设定Envelope-From head(safe_mode时请设定为false)
+define('MAIL_SET_ENVFROM', true);
+
+// 用Envelope-From 设定邮件地址
+//(不指定时为管理员邮件地址(和From相同))
+//define('MAIL_ENVFROM', 'system@example.com');
+
+///
+// mbstring设定
+///
+
+mb_language('Neutral');
+ini_set('mbstring.detect_order', 'auto');
+ini_set('mbstring.http_input'  , 'auto');
+ini_set('mbstring.http_output' , 'pass');
+ini_set('mbstring.internal_encoding', 'UTF-8');
+ini_set('mbstring.script_encoding'  , 'UTF-8');
+ini_set('mbstring.substitute_character', 'none');
+mb_regex_encoding('UTF-8');
+mb_substitute_character("long");
+mb_substitute_character(0x3013);
+
+// 是否使用 Validator 删除全角空格
+// 使用Validator出错时请指定为false
+define('OPENPNE_TRIM_DOUBLEBYTE_SPACE', true);
+
+///
+// API通信设定
+///
+
+// API通信使用设定
+define('OPENPNE_USE_API', true);
+
+// session键生成用文字列(请修改为合适的文字列)
+define('OPENPNE_API_TOKEN', 'OpenPNE');
+
+// 有客户端IP地址的服务器变量名($_SERVER['REMOTE_ADDR'])
+//define('SERVER_IP_KEY', 'HTTP_X_FORWARDED_FOR');
+define('SERVER_IP_KEY', 'REMOTE_ADDR');
+
+///
+// HTTP代理设定
+///
+
+// HTTP代理使用设定
+define('OPENPNE_USE_HTTP_PROXY', false);
+
+// 代理的host名
+define('OPENPNE_HTTP_PROXY_HOST', 'proxy.example.com');
+
+// 代理的端口号码
+define('OPENPNE_HTTP_PROXY_PORT', 8080);
+
+///
+// memory_limit设定
+///
+// ini_set('memory_limit','32M');
+
+///
+// umask设定
+///
+
+umask(0);
+
+///
+// Google Maps API key
+// http://www.google.com/apis/maps/ 取得API地址
+///
+define('GOOGLE_MAPS_API_KEY', '');
+
+///
+// Google AJAX Search API key
+// http://code.google.com/apis/ajaxsearch/signup.html  取得
+///
+define('GOOGLE_AJAX_SEARCH_API_KEY', '');
+
+//// SNS程序设定 ////
+
+// 管理画面的URL设定
+//(OPENPNE_URL)?m=ADMIN_MODULE_NAME (例. http://sns.example.com/?m=admin)
+define('ADMIN_MODULE_NAME', 'admin');
+
+// 是否显示管理画面的版本情报
+define('DISPLAY_VERSION', true);
+
+// 管理画面显示OpenPNE更新信息的URL
+// URL为空时，更新信息不显示
+define('OPENPNE_DASHBOARD_URL', 'http://ad.pne.jp/dashboard/');
+
+
+// 编辑器功能图标设定
+define('OPENPNE_DECORATION_CMD_URL', 'http://www.openpne.jp/cmd/');
+//天气预报URL設定
+
+define('OPENPNE_WEATHER_URL', 'http://weather.news.sina.com.cn/');
+
+// 手机版是否检查User-Agent
+define('CHECK_KTAI_UA', true);
+
+// 手机版本是否使用IP限制机能
+// IP列表 webapp/lib/ktaiIP.php
+define('CHECK_KTAI_IP', false);
+
+// 邮件群发是否使用mailqueue
+define('OPENPNE_MAIL_QUEUE', false);
+// 使用mailqueue一起送信时的邮件数量
+define('SEND_MAIL_QUEUE_NUM', 10);
+
+// 短信群发是否使用messagequeue
+define('OPENPNE_MESSAGE_QUEUE', false);
+// 使用messagequeue发送的短信数量
+define('SEND_MESSAGE_QUEUE_NUM', 10);
+
+// 是否使用CAPTCHA（把图像中的文字列放入成员中的认证方式）
+define('OPENPNE_USE_CAPTCHA', true);
+
+// 认证模式设定
+// ※如果在运营中的SNS中来改变认证模式，已经存在的会员会无法登录
+//  email    : 由邮件地址和密码登录
+//  pneid    : 由ID和密码登录
+//  slavepne : 使用外部认证(SlavePNE方式)登录
+define('OPENPNE_AUTH_MODE', 'pneid');
+
+// 外部认证时，是否必须登录邮件地址
+define('IS_SLAVEPNE_EMAIL_REGIST', false);
+
+// 邀请邮件中记载的URL
+define('SLAVEPNE_SYOUTAI_URL_PC', '');
+define('SLAVEPNE_SYOUTAI_URL_KTAI', '');
+
+// 外部认证时的「忘记密码请访问这里」的链接URL设定
+// URL为空时，链接不显示
+define('SLAVEPNE_PASSWORD_QUERY_URL_PC', '');
+define('SLAVEPNE_PASSWORD_QUERY_URL_KTAI', '');
+
+// OPENPNE_AUTH_MODE 
+$GLOBALS['_OPENPNE_AUTH_CONFIG'] = 
+array(
+'storage'=>"DB",
+'options'=>array(
+    'dsn'         => array(
+        'phptype'  => 'mysql',
+        'username' => 'root',
+        'password' => '',
+        'hostspec' => 'localhost',
+        'database' => '',
+        'new_link' => true,
+        ),
+    'table'       => '',
+    'usernamecol' => 'username',
+    'passwordcol' => 'password',
+    'cryptType'   => 'none',
+    ),
+);
+
+//访问图像要经过SNS认证
+//※使用图片静态化机能时不能使用
+define('CHECK_IMG_AUTH', false);
+
+// PC显示时，是否将au/SoftBank的绘文字转换成DoCoMo的绘文字
+// 使用au/SoftBank的绘文字， 需要在public_html/skin/default/img/emoji/{e|s}下更改图像
+define('OPENPNE_EMOJI_DOCOMO_FOR_PC', false);
+
+// 是否发送没有没有被cache的网页header
+// 不过，使用au手机时，不管有否设定此项、都会发送没有被cache的网页header
+define('OPENPNE_SEND_NO_CACHE_HEADER', false);
+
+// 在管理画面中是否使用URL・小窗变换功能
+define('OPENPNE_ADMIN_CONVERT_URL', true);
+
+// 是否作为OpenID服务器（服务器提供商）
+define('OPENPNE_IS_OPENID_SERVER', false);
+
+?>
